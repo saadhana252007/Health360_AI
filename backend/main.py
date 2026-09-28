@@ -1,11 +1,16 @@
 from fastapi import FastAPI
 
+from backend.routers.checkups import router as checkups_router
+
 
 app = FastAPI(
     title="Health360 AI",
     version="1.0.0",
     description="Modular AI-powered personal health checkup API"
 )
+
+
+app.include_router(checkups_router)
 
 
 @app.get("/")
