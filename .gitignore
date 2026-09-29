@@ -11,3 +11,5 @@ __pycache__/
 .coverage
 htmlcov/
 .DS_Store
+check.html
+check_files/
