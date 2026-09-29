@@ -1,11 +1,14 @@
 import json
 
+import os
+
 import cv2
 import numpy as np
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 from backend.schemas.checkup import CheckupRequest, CheckupResponse
 from backend.services.ai_service import AIService
+from backend.services.supabase_service import SupabaseService
 
 
 router = APIRouter(
@@ -14,6 +17,7 @@ router = APIRouter(
 )
 
 ai_service = AIService()
+supabase_service = SupabaseService()
 
 
 @router.post("/analyze", response_model=CheckupResponse)
@@ -21,6 +25,15 @@ def analyze_checkup(request: CheckupRequest):
     result = ai_service.analyze(
         symptoms=request.symptoms,
         patient=request.patient
+    )
+
+    user_id = os.getenv("SUPABASE_TEST_USER_ID")
+
+    checkup_id = supabase_service.save_checkup(
+        user_id=user_id,
+        symptoms=request.symptoms,
+        patient=request.patient,
+        result=result
     )
 
     return {
@@ -73,6 +86,19 @@ async def analyze_checkup_with_image(
         patient=patient_data,
         image=image_data,
         image_type=image_type
+    )
+
+    user_id = os.getenv("SUPABASE_TEST_USER_ID")
+
+    checkup_id = supabase_service.save_checkup(
+        user_id=user_id,
+        symptoms=symptoms_data,
+        patient=patient_data,
+        result=result,
+        image_bytes=image_bytes,
+        image_type=image_type,
+        image_name=image.filename,
+        image_mime_type=image.content_type
     )
 
     return {
