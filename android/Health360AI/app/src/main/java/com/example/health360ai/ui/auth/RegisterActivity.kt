@@ -51,15 +51,29 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun setupSexDropdown() {
-        val options = arrayOf("Male", "Female", "Other")
+        val options = arrayOf(
+            "Male",
+            "Female",
+            "Other"
+        )
 
         val adapter = ArrayAdapter(
             this,
-            R.layout.simple_dropdown_item_1line,
+            android.R.layout.simple_dropdown_item_1line,
             options
         )
 
         binding.sexInput.setAdapter(adapter)
+
+        binding.sexInput.setOnClickListener {
+            binding.sexInput.showDropDown()
+        }
+
+        binding.sexInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                binding.sexInput.showDropDown()
+            }
+        }
     }
 
     private fun setupDatePicker() {

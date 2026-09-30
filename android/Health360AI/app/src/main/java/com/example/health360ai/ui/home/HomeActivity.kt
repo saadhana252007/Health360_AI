@@ -1,17 +1,20 @@
 package com.example.health360ai.ui.home
 
+import android.graphics.Color
 import android.os.Bundle
+import android.view.Window
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.example.health360ai.R
 import com.example.health360ai.databinding.ActivityHomeBinding
 import com.example.health360ai.ui.assistant.AssistantFragment
 import com.example.health360ai.ui.history.HistoryFragment
 import com.example.health360ai.ui.profile.ProfileFragment
-import android.graphics.Color
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.ViewCompat
 
 class HomeActivity : AppCompatActivity() {
 
@@ -24,28 +27,69 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        window.statusBarColor = Color.WHITE
         window.navigationBarColor = Color.WHITE
-        window.statusBarColor = Color.TRANSPARENT
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+            window.navigationBarDividerColor = Color.WHITE
+        }
+
+        WindowCompat.getInsetsController(
+            window,
+            window.decorView
+        ).isAppearanceLightStatusBars = true
+
+        WindowCompat.getInsetsController(
+            window,
+            window.decorView
+        ).isAppearanceLightNavigationBars = true
 
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavigation) { view, insets ->
-            val systemBars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars()
+
+        ViewCompat.setOnApplyWindowInsetsListener(
+            binding.bottomNavigation
+        ) { view, insets ->
+
+            val navigationBars = insets.getInsets(
+                WindowInsetsCompat.Type.navigationBars()
             )
 
-            view.setPadding(
-                view.paddingLeft,
-                view.paddingTop,
-                view.paddingRight,
-                systemBars.bottom
-            )
+            val params =
+                view.layoutParams as ConstraintLayout.LayoutParams
+
+            params.bottomMargin = navigationBars.bottom
+
+            view.layoutParams = params
 
             insets
         }
 
         setupNavigation()
+
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+
+                override fun handleOnBackPressed() {
+
+                    if (
+                        binding.bottomNavigation.selectedItemId !=
+                        R.id.nav_home
+                    ) {
+                        binding.bottomNavigation.selectedItemId =
+                            R.id.nav_home
+                    } else {
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                    }
+                }
+            }
+        )
 
         if (savedInstanceState == null) {
 
@@ -62,9 +106,7 @@ class HomeActivity : AppCompatActivity() {
                         "checkup_id"
                     )
 
-                openAssistantFragment(
-                    checkupId
-                )
+                openAssistantFragment(checkupId)
 
             } else {
 
@@ -74,9 +116,11 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun setupNavigation() {
+
         binding.bottomNavigation.setOnItemSelectedListener { item ->
 
             when (item.itemId) {
+
                 R.id.nav_home -> {
                     showFragment(homeFragment)
                     true
@@ -103,35 +147,38 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun showFragment(fragment: Fragment) {
+
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.homeFragmentContainer, fragment)
+            .replace(
+                R.id.homeFragmentContainer,
+                fragment
+            )
             .commit()
     }
+
     override fun onNewIntent(intent: android.content.Intent) {
 
         super.onNewIntent(intent)
 
         setIntent(intent)
 
-        val openAssistant =
+        if (
             intent.getBooleanExtra(
                 "open_assistant",
                 false
             )
-
-        if (openAssistant) {
+        ) {
 
             val checkupId =
                 intent.getStringExtra(
                     "checkup_id"
                 )
 
-            openAssistantFragment(
-                checkupId
-            )
+            openAssistantFragment(checkupId)
         }
     }
+
     private fun openAssistantFragment(
         checkupId: String?
     ) {
@@ -141,7 +188,6 @@ class HomeActivity : AppCompatActivity() {
 
                 arguments =
                     Bundle().apply {
-
                         putString(
                             "checkup_id",
                             checkupId
@@ -152,8 +198,6 @@ class HomeActivity : AppCompatActivity() {
         binding.bottomNavigation.selectedItemId =
             R.id.nav_assistant
 
-        showFragment(
-            assistantFragment
-        )
+        showFragment(assistantFragment)
     }
 }
