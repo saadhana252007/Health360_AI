@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from backend.routers.checkups import router as checkups_router
-
+from backend.routers.assistant import router as assistant_router
 
 app = FastAPI(
     title="Health360 AI",
@@ -11,7 +11,7 @@ app = FastAPI(
 
 
 app.include_router(checkups_router)
-
+app.include_router(assistant_router)
 
 @app.get("/")
 def root():

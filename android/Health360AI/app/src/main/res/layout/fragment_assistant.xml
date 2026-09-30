@@ -1,13 +1,245 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F8FBFC">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="#FFFFFF"
+        android:layout_marginTop="20dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AI Health Assistant"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#17343B" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Understand your Health360 results"
+                android:textSize="12sp"
+                android:textColor="#71858A" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:gravity="center"
+            android:text="AI"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:background="#087C83" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/chatScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/messagesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="14dp"
+            android:paddingBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:padding="16dp"
+                android:orientation="vertical"
+                android:background="#EAF8F8">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CURRENT HEALTH360 SCREENING"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="#087C83" />
+
+                <TextView
+                    android:id="@+id/screeningStatusText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Recent screening result"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="#17343B" />
+
+                <TextView
+                    android:id="@+id/screeningConfidenceText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Ask Health360 AI about your result"
+                    android:textSize="13sp"
+                    android:textColor="#087C83" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                android:text="Health360 Intelligence  •  Now"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#087C83" />
+
+            <TextView
+                android:id="@+id/welcomeMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="55dp"
+                android:padding="20dp"
+                android:text="Hi! I can help you understand your Health360 screening result. Ask me about your screening status, confidence, warning signs, or next steps."
+                android:textSize="15sp"
+                android:textColor="#263C42"
+                android:background="#FFFFFF" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp">
+
+                    <TextView
+                        android:id="@+id/explainChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:gravity="center"
+                        android:paddingStart="18dp"
+                        android:paddingEnd="18dp"
+                        android:text="✦ Explain my result"
+                        android:textSize="13sp"
+                        android:textColor="#087C83"
+                        android:background="#EFF8F8" />
+
+                    <TextView
+                        android:id="@+id/warningChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:layout_marginStart="8dp"
+                        android:gravity="center"
+                        android:paddingStart="18dp"
+                        android:paddingEnd="18dp"
+                        android:text="⚠ What are my warning signs?"
+                        android:textSize="13sp"
+                        android:textColor="#4459B8"
+                        android:background="#F5F6FF" />
+
+                    <TextView
+                        android:id="@+id/confidenceChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:layout_marginStart="8dp"
+                        android:gravity="center"
+                        android:paddingStart="18dp"
+                        android:paddingEnd="18dp"
+                        android:text="What does confidence mean?"
+                        android:textSize="13sp"
+                        android:textColor="#087C83"
+                        android:background="#EFF8F8" />
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+            <ProgressBar
+                android:id="@+id/assistantProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Assistant"
-        android:textSize="28sp" />
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:background="#FFFFFF">
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="6dp"
+            android:background="#EAF8F8">
+
+            <EditText
+                android:id="@+id/messageInput"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:hint="Ask about your result..."
+                android:textSize="14sp"
+                android:singleLine="true"
+                android:textColor="@color/black"
+                android:textColorHint="#808080"/>
+
+            <ImageButton
+                android:id="@+id/sendButton"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:src="@android:drawable/ic_media_play"
+                android:background="#087C83"
+                android:contentDescription="Send" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="5dp"
+            android:text="Health360 AI provides guidance, not a medical diagnosis."
+            android:textSize="11sp"
+            android:textColor="#71858A" />
+
+    </LinearLayout>
+
+</LinearLayout>

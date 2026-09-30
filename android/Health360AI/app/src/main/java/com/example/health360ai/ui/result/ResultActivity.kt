@@ -82,6 +82,32 @@ class ResultActivity : AppCompatActivity() {
                 finish()
             }
         }
+
+        binding.askAiButton.setOnClickListener {
+
+            val intent =
+                Intent(
+                    this,
+                    com.example.health360ai.ui.home.HomeActivity::class.java
+                ).apply {
+
+                    putExtra(
+                        "open_assistant",
+                        true
+                    )
+
+                    putExtra(
+                        "checkup_id",
+                        checkupId
+                    )
+
+                    flags =
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                                Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+
+            startActivity(intent)
+        }
     }
 
     private fun loadHistoricalResult(checkupId: String) {

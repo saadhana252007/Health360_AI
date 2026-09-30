@@ -7,6 +7,10 @@ import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import com.example.health360ai.data.remote.model.AssistantRequest
+import com.example.health360ai.data.remote.model.AssistantResponse
+
+
 
 interface Health360ApiService {
 
@@ -27,4 +31,9 @@ interface Health360ApiService {
         @Part("image_type") imageType: RequestBody,
         @Part image: MultipartBody.Part
     ): CheckupResponse
+
+    @POST("api/v1/assistant/chat")
+    suspend fun assistantChat(
+        @Body request: AssistantRequest
+    ): AssistantResponse
 }

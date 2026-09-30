@@ -442,6 +442,19 @@
             android:textSize="14sp"
             android:lineSpacingExtra="5dp" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/askAiButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="18dp"
+            android:text="Ask Health360 AI"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:backgroundTint="#087C83"
+            app:cornerRadius="25dp" />
+
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/backHomeButton"

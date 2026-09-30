@@ -19,7 +19,7 @@ class HomeActivity : AppCompatActivity() {
 
     private val homeFragment = HomeFragment()
     private val historyFragment = HistoryFragment()
-    private val assistantFragment = AssistantFragment()
+    private var assistantFragment = AssistantFragment()
     private val profileFragment = ProfileFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +48,28 @@ class HomeActivity : AppCompatActivity() {
         setupNavigation()
 
         if (savedInstanceState == null) {
-            showFragment(homeFragment)
+
+            val openAssistant =
+                intent.getBooleanExtra(
+                    "open_assistant",
+                    false
+                )
+
+            if (openAssistant) {
+
+                val checkupId =
+                    intent.getStringExtra(
+                        "checkup_id"
+                    )
+
+                openAssistantFragment(
+                    checkupId
+                )
+
+            } else {
+
+                showFragment(homeFragment)
+            }
         }
     }
 
@@ -86,5 +107,53 @@ class HomeActivity : AppCompatActivity() {
             .beginTransaction()
             .replace(R.id.homeFragmentContainer, fragment)
             .commit()
+    }
+    override fun onNewIntent(intent: android.content.Intent) {
+
+        super.onNewIntent(intent)
+
+        setIntent(intent)
+
+        val openAssistant =
+            intent.getBooleanExtra(
+                "open_assistant",
+                false
+            )
+
+        if (openAssistant) {
+
+            val checkupId =
+                intent.getStringExtra(
+                    "checkup_id"
+                )
+
+            openAssistantFragment(
+                checkupId
+            )
+        }
+    }
+    private fun openAssistantFragment(
+        checkupId: String?
+    ) {
+
+        assistantFragment =
+            AssistantFragment().apply {
+
+                arguments =
+                    Bundle().apply {
+
+                        putString(
+                            "checkup_id",
+                            checkupId
+                        )
+                    }
+            }
+
+        binding.bottomNavigation.selectedItemId =
+            R.id.nav_assistant
+
+        showFragment(
+            assistantFragment
+        )
     }
 }

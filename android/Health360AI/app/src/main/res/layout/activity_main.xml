@@ -192,7 +192,8 @@
                     app:endIconMode="password_toggle"
                     app:startIconDrawable="@drawable/ic_lock"
                     app:boxStrokeWidth="0dp"
-                    app:boxStrokeWidthFocused="0dp">
+                    app:boxStrokeWidthFocused="0dp"
+                    android:background="#EFF4FF">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/passwordInput"
@@ -204,7 +205,7 @@
                         android:paddingStart="48dp"
                         android:textSize="16sp"
                         android:textColor="@color/black"
-                        android:textColorHint="@color/black"/>
+                        android:textColorHint="#808080" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
