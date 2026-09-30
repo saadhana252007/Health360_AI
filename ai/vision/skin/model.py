@@ -1,45 +1,61 @@
+import json
 import torch
 import torch.nn as nn
-import timm
-
+from torchvision.models import efficientnet_b0
+from huggingface_hub import hf_hub_download
 
 class SkinModel(nn.Module):
-    """
-    EfficientNetV2-S based skin image classifier.
-
-    Input:
-        [batch, 3, 224, 224]
-
-    Output:
-        [batch, 11]
-    """
-
-    def __init__(self, num_classes=11, pretrained=False):
+    def __init__(self, num_classes=5, pretrained=False):
         super().__init__()
 
-        self.num_classes = num_classes
+        self.class_names = [
+            "Eczema / dermatitis",
+            "Urticaria / allergic reaction",
+            "Folliculitis / acne-like",
+            "Psoriasis / papulosquamous",
+            "Lesion - dermoscopic review recommended"
+        ]
 
-        self.backbone = timm.create_model(
-            "tf_efficientnetv2_s",
-            pretrained=pretrained,
-            num_classes=num_classes
+        self.backbone = efficientnet_b0(weights=None)
+        self.backbone.classifier[1] = nn.Linear(
+            self.backbone.classifier[1].in_features,
+            5
         )
+
+        checkpoint_path = hf_hub_download(
+            repo_id="RevelaCap/clinical-skin-condition-v1",
+            filename="best_model.pth"
+        )
+
+        checkpoint = torch.load(
+        checkpoint_path,
+        map_location="cpu",
+        weights_only=True
+        )
+
+        self.backbone.load_state_dict(checkpoint["model_state_dict"])
+        self.backbone.eval()
 
     def forward(self, x):
         return self.backbone(x)
 
     def get_embedding(self, x):
-        """
-        Returns the feature embedding before the final classifier.
-        This will be useful later for multimodal fusion.
-        """
+        features = self.backbone.features(x)
+        features = self.backbone.avgpool(features)
+        return torch.flatten(features, 1)
 
-        features = self.backbone.forward_features(x)
+    def predict(self, x):
+        with torch.no_grad():
+            logits = self.forward(x)
+            probabilities = torch.softmax(logits, dim=1)
+            confidence, index = torch.max(probabilities, dim=1)
 
-        # Global average pooling
-        embedding = self.backbone.global_pool(features)
-
-        # Flatten [B, C, 1, 1] -> [B, C]
-        embedding = embedding.flatten(1)
-
-        return embedding
+        return {
+            "class_index": int(index.item()),
+            "class_name": self.class_names[int(index.item())],
+            "confidence": float(confidence.item()),
+            "probabilities": {
+                self.class_names[i]: float(probabilities[0][i].item())
+                for i in range(len(self.class_names))
+            }
+        }

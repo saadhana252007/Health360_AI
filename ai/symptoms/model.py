@@ -1,39 +1,40 @@
-import numpy as np
-import xgboost as xgb
+import torch
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 
 class SymptomModel:
+    def __init__(self):
+        self.model_name = "cristian-untaru/lora-biomedbert-medical-triage"
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self.model = AutoModelForSequenceClassification.from_pretrained(
+            self.model_name
+        )
+        self.model.eval()
 
-    def __init__(self, num_features=10):
-        self.num_features = num_features
-        self.model = xgb.XGBRegressor(
-            n_estimators=50,
-            max_depth=3,
-            learning_rate=0.05,
-            objective="reg:squarederror",
-            random_state=42
+    def predict_text(self, text):
+        inputs = self.tokenizer(
+            text,
+            return_tensors="pt",
+            truncation=True,
+            padding=True,
+            max_length=128
         )
 
-    def fit(self, X, y):
-        X = np.asarray(X, dtype=np.float32)
-        y = np.asarray(y, dtype=np.float32)
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            probabilities = torch.softmax(
+                outputs.logits,
+                dim=-1
+            )[0]
 
-        self.model.fit(X, y)
-
-    def predict(self, X):
-        X = np.asarray(X, dtype=np.float32)
-
-        prediction = self.model.predict(X)
-
-        return prediction
-
-    def transform_result(self, prediction):
-        score = float(np.clip(prediction[0], 0.0, 1.0))
+        index = int(torch.argmax(probabilities).item())
 
         return {
-            "model": "symptom_v1",
-            "version": "1.0",
-            "symptom_score": score,
-            "confidence": 0.0,
-            "uncertainty": 0.0
+            "class_index": index,
+            "class_name": self.model.config.id2label[index],
+            "confidence": float(probabilities[index].item()),
+            "probabilities": {
+                self.model.config.id2label[i]: float(probabilities[i].item())
+                for i in range(len(probabilities))
+            }
         }

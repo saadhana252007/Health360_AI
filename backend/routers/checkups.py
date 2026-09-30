@@ -1,5 +1,4 @@
 import json
-
 import os
 
 import cv2
@@ -9,7 +8,6 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from backend.schemas.checkup import CheckupRequest, CheckupResponse
 from backend.services.ai_service import AIService
 from backend.services.supabase_service import SupabaseService
-
 
 router = APIRouter(
     prefix="/api/v1/checkups",
@@ -29,7 +27,7 @@ def analyze_checkup(request: CheckupRequest):
 
     user_id = os.getenv("SUPABASE_TEST_USER_ID")
 
-    checkup_id = supabase_service.save_checkup(
+    supabase_service.save_checkup(
         user_id=user_id,
         symptoms=request.symptoms,
         patient=request.patient,
@@ -39,17 +37,22 @@ def analyze_checkup(request: CheckupRequest):
     return {
         "status": "completed",
         "assessment": {
-            "overall": result["fusion_result"]["health_vector"]
+            "image_type": None,
+            "finding": None,
+            "confidence": None,
+            "probabilities": {}
         },
+        "screening": result["screening"],
+        "image_result": result["image_result"],
         "symptom_result": result["symptom_result"],
         "patient_result": result["patient_result"],
-        "fusion_result": result["fusion_result"],
         "uncertainty": result["uncertainty"]
     }
 
 
 @router.post("/analyze-image", response_model=CheckupResponse)
 async def analyze_checkup_with_image(
+    user_id: str = Form(...),
     symptoms: str = Form(...),
     patient: str = Form(...),
     image_type: str = Form(...),
@@ -88,9 +91,15 @@ async def analyze_checkup_with_image(
         image_type=image_type
     )
 
-    user_id = os.getenv("SUPABASE_TEST_USER_ID")
+    if not result.get("image_result"):
+        raise HTTPException(
+            status_code=500,
+            detail="Image analysis did not return a result"
+        )
 
-    checkup_id = supabase_service.save_checkup(
+    prediction = result["image_result"]["prediction"]
+
+    supabase_service.save_checkup(
         user_id=user_id,
         symptoms=symptoms_data,
         patient=patient_data,
@@ -104,10 +113,14 @@ async def analyze_checkup_with_image(
     return {
         "status": "completed",
         "assessment": {
-            "overall": result["fusion_result"]["health_vector"]
+            "image_type": image_type,
+            "finding": prediction.get("class_name"),
+            "confidence": prediction.get("confidence"),
+            "probabilities": prediction.get("probabilities", {})
         },
+        "screening": result["screening"],
+        "image_result": result["image_result"],
         "symptom_result": result["symptom_result"],
         "patient_result": result["patient_result"],
-        "fusion_result": result["fusion_result"],
         "uncertainty": result["uncertainty"]
     }

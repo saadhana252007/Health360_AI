@@ -1,128 +1,371 @@
-import torch
-import torch.nn as nn
+class MultimodalFusion:
 
+    def __init__(self):
+        self.version = "fusion_v3"
 
-class MultimodalFusion(nn.Module):
-
-    def __init__(
+    def fuse(
         self,
-        skin_dim=1280,
-        oral_dim=512,
-        wound_dim=384,
-        symptom_dim=10,
-        patient_dim=25,
-        hidden_dim=64,
-        health_dim=7
+        image_result=None,
+        symptom_result=None,
+        patient_result=None,
+        patient=None
     ):
-        super().__init__()
+        image_result = image_result or {}
+        symptom_result = symptom_result or {}
+        patient_result = patient_result or {}
+        patient = patient or {}
 
-        self.skin_projection = nn.Sequential(
-            nn.Linear(skin_dim, hidden_dim),
-            nn.ReLU()
+        evidence = []
+
+        image_prediction = image_result.get("prediction")
+        symptom_class = symptom_result.get("class_name")
+        patient_class = patient_result.get("class_name")
+
+        if image_prediction:
+            evidence.append({
+                "source": image_result.get("type", "image"),
+                "finding": image_prediction.get("class_name"),
+                "confidence": float(
+                    image_prediction.get("confidence", 0.0)
+                )
+            })
+
+        if symptom_result:
+            evidence.append({
+                "source": "symptoms",
+                "finding": symptom_class,
+                "confidence": float(
+                    symptom_result.get("confidence", 0.0)
+                )
+            })
+
+        if patient_result:
+            evidence.append({
+                "source": "patient_risk",
+                "finding": patient_class,
+                "confidence": float(
+                    patient_result.get("confidence", 0.0)
+                )
+            })
+
+        vital_analysis = self._analyze_vitals(patient)
+
+        if vital_analysis["available"]:
+            evidence.append({
+                "source": "vitals",
+                "finding": vital_analysis["summary"],
+                "confidence": vital_analysis["confidence"]
+            })
+
+        confidences = []
+
+        if image_prediction:
+            confidences.append(
+                float(
+                    image_prediction.get(
+                        "confidence",
+                        0.0
+                    )
+                )
+            )
+
+        if symptom_result:
+            confidences.append(
+                float(
+                    symptom_result.get(
+                        "confidence",
+                        0.0
+                    )
+                )
+            )
+
+        if patient_result:
+            confidences.append(
+                float(
+                    patient_result.get(
+                        "confidence",
+                        0.0
+                    )
+                )
+            )
+
+        if vital_analysis["available"]:
+            confidences.append(
+                vital_analysis["confidence"]
+            )
+
+        overall_confidence = (
+            sum(confidences) / len(confidences)
+            if confidences
+            else 0.0
         )
 
-        self.oral_projection = nn.Sequential(
-            nn.Linear(oral_dim, hidden_dim),
-            nn.ReLU()
-        )
-
-        self.wound_projection = nn.Sequential(
-            nn.Linear(wound_dim, hidden_dim),
-            nn.ReLU()
-        )
-
-        self.symptom_projection = nn.Sequential(
-            nn.Linear(symptom_dim, hidden_dim),
-            nn.ReLU()
-        )
-
-        self.patient_projection = nn.Sequential(
-            nn.Linear(patient_dim, hidden_dim),
-            nn.ReLU()
-        )
-
-        self.gate = nn.Sequential(
-            nn.Linear(hidden_dim * 5, hidden_dim * 5),
-            nn.ReLU(),
-            nn.Linear(hidden_dim * 5, 5),
-            nn.Softmax(dim=1)
-        )
-
-        self.fusion = nn.Sequential(
-            nn.Linear(hidden_dim * 5, hidden_dim * 2),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(hidden_dim * 2, hidden_dim),
-            nn.ReLU()
-        )
-
-        self.health_head = nn.Linear(hidden_dim, health_dim)
-
-        self.confidence_head = nn.Sequential(
-            nn.Linear(hidden_dim, 1),
-            nn.Sigmoid()
-        )
-
-    def forward(
-        self,
-        skin,
-        oral,
-        wound,
-        symptoms,
-        patient,
-        modality_mask
-    ):
-        skin_features = self.skin_projection(skin)
-        oral_features = self.oral_projection(oral)
-        wound_features = self.wound_projection(wound)
-        symptom_features = self.symptom_projection(symptoms)
-        patient_features = self.patient_projection(patient)
-
-        features = torch.stack(
-            [
-                skin_features,
-                oral_features,
-                wound_features,
-                symptom_features,
-                patient_features
-            ],
-            dim=1
-        )
-
-        mask = modality_mask.unsqueeze(-1)
-
-        features = features * mask
-
-        flat_features = features.flatten(1)
-
-        gates = self.gate(flat_features)
-
-        gates = gates * modality_mask
-
-        gate_sum = gates.sum(dim=1, keepdim=True).clamp_min(1e-6)
-
-        gates = gates / gate_sum
-
-        gated_features = features * gates.unsqueeze(-1)
-
-        fused_input = gated_features.flatten(1)
-
-        fused = self.fusion(fused_input)
-
-        health_vector = torch.sigmoid(
-            self.health_head(fused)
-        )
-
-        confidence = self.confidence_head(fused)
-
-        completeness = modality_mask.mean(
-            dim=1,
-            keepdim=True
+        overall_status = self._determine_status(
+            symptom_result,
+            vital_analysis
         )
 
         return {
-            "health_vector": health_vector,
-            "confidence": confidence,
-            "completeness": completeness,
-            "gates": gates
+            "model": self.version,
+            "available_modalities": len(evidence),
+            "evidence": evidence,
+            "overall_confidence": overall_confidence,
+            "overall_status": overall_status,
+            "vital_analysis": vital_analysis,
+            "interpretation": self._build_interpretation(
+                overall_status,
+                symptom_class,
+                vital_analysis
+            )
         }
+
+    def _analyze_vitals(self, patient):
+
+        findings = []
+        invalid = []
+        abnormal = []
+
+        heart_rate = self._number(
+            patient.get("heart_rate")
+        )
+
+        systolic = self._number(
+            patient.get("systolic_bp")
+        )
+
+        diastolic = self._number(
+            patient.get("diastolic_bp")
+        )
+
+        spo2 = self._number(
+            patient.get("spo2")
+        )
+
+        temperature = self._number(
+            patient.get("temperature")
+        )
+
+        available = any(
+            value is not None
+            for value in [
+                heart_rate,
+                systolic,
+                diastolic,
+                spo2,
+                temperature
+            ]
+        )
+
+        if heart_rate is not None:
+
+            if heart_rate < 30 or heart_rate > 220:
+                invalid.append(
+                    f"Heart rate {heart_rate:.0f} bpm is outside the supported measurement range."
+                )
+
+            elif heart_rate < 60:
+                abnormal.append(
+                    f"Heart rate is low at {heart_rate:.0f} bpm."
+                )
+
+            elif heart_rate > 100:
+                abnormal.append(
+                    f"Heart rate is elevated at {heart_rate:.0f} bpm."
+                )
+
+            else:
+                findings.append(
+                    f"Heart rate {heart_rate:.0f} bpm is within the typical resting adult range."
+                )
+
+        if systolic is not None and diastolic is not None:
+
+            if (
+                systolic < 60
+                or systolic > 300
+                or diastolic < 30
+                or diastolic > 200
+                or systolic <= diastolic
+            ):
+                invalid.append(
+                    f"Blood pressure {systolic:.0f}/{diastolic:.0f} mmHg is not a valid blood pressure reading."
+                )
+
+            elif systolic > 180 or diastolic > 120:
+                abnormal.append(
+                    f"Blood pressure is in the severe range at {systolic:.0f}/{diastolic:.0f} mmHg."
+                )
+
+            elif systolic >= 140 or diastolic >= 90:
+                abnormal.append(
+                    f"Blood pressure is high at {systolic:.0f}/{diastolic:.0f} mmHg."
+                )
+
+            elif systolic >= 130 or diastolic >= 80:
+                abnormal.append(
+                    f"Blood pressure is above the normal range at {systolic:.0f}/{diastolic:.0f} mmHg."
+                )
+
+            else:
+                findings.append(
+                    f"Blood pressure {systolic:.0f}/{diastolic:.0f} mmHg is not elevated."
+                )
+
+        if spo2 is not None:
+
+            if spo2 < 50 or spo2 > 100:
+                invalid.append(
+                    f"SpO₂ of {spo2:.0f}% is outside the valid 0–100% range. Please remeasure."
+                )
+
+            elif spo2 < 90:
+                abnormal.append(
+                    f"SpO₂ is low at {spo2:.0f}%."
+                )
+
+            elif spo2 < 95:
+                abnormal.append(
+                    f"SpO₂ is below the typical range at {spo2:.0f}%."
+                )
+
+            else:
+                findings.append(
+                    f"SpO₂ of {spo2:.0f}% is within the typical range."
+                )
+
+        if temperature is not None:
+
+            if temperature < 25 or temperature > 45:
+                invalid.append(
+                    f"Temperature of {temperature:.1f}°C is outside a plausible body-temperature range. Please check whether the unit or value is correct."
+                )
+
+            elif temperature >= 38:
+                abnormal.append(
+                    f"Temperature is elevated at {temperature:.1f}°C."
+                )
+
+            elif temperature < 35:
+                abnormal.append(
+                    f"Temperature is low at {temperature:.1f}°C."
+                )
+
+            else:
+                findings.append(
+                    f"Temperature of {temperature:.1f}°C is not elevated."
+                )
+
+        abnormal_count = len(abnormal)
+        invalid_count = len(invalid)
+
+        if invalid_count > 0:
+            confidence = 0.2
+        elif abnormal_count == 0:
+            confidence = 0.9
+        elif abnormal_count == 1:
+            confidence = 0.7
+        else:
+            confidence = 0.5
+
+        if invalid:
+            summary = "Invalid vital measurement(s) detected."
+        elif abnormal:
+            summary = "Abnormal vital measurement(s) detected."
+        else:
+            summary = "No abnormal vital measurements detected."
+
+        return {
+            "available": available,
+            "findings": findings,
+            "abnormal": abnormal,
+            "invalid": invalid,
+            "abnormal_count": abnormal_count,
+            "invalid_count": invalid_count,
+            "confidence": confidence,
+            "summary": summary
+        }
+
+    def _determine_status(
+        self,
+        symptom_result,
+        vital_analysis
+    ):
+
+        if vital_analysis["invalid_count"] > 0:
+            return "INPUT_RECHECK_REQUIRED"
+
+        if (
+            vital_analysis["abnormal_count"] >= 2
+        ):
+            return "MEDICAL_REVIEW_RECOMMENDED"
+
+        if (
+            vital_analysis["abnormal_count"] == 1
+        ):
+            symptom_class = symptom_result.get(
+                "class_name",
+                ""
+            )
+
+            if symptom_class == "urgent":
+                return "URGENT_ATTENTION"
+
+            if symptom_class == "consult_gp":
+                return "MEDICAL_REVIEW_RECOMMENDED"
+
+            return "ATTENTION_REQUIRED"
+
+        symptom_class = symptom_result.get(
+            "class_name",
+            ""
+        )
+
+        if symptom_class == "urgent":
+            return "URGENT_ATTENTION"
+
+        if symptom_class == "consult_gp":
+            return "MEDICAL_REVIEW_RECOMMENDED"
+
+        return "MONITOR"
+
+    def _build_interpretation(
+        self,
+        status,
+        symptom_class,
+        vital_analysis
+    ):
+
+        if status == "INPUT_RECHECK_REQUIRED":
+            return (
+                "The screening cannot be reliably interpreted until the invalid "
+                "vital measurements are corrected and rechecked."
+            )
+
+        if status == "URGENT_ATTENTION":
+            return (
+                "The combined screening identified information that requires "
+                "prompt medical attention."
+            )
+
+        if status == "MEDICAL_REVIEW_RECOMMENDED":
+            return (
+                "The combined screening identified more than one finding that "
+                "should be reviewed with a healthcare professional."
+            )
+
+        if status == "ATTENTION_REQUIRED":
+            return (
+                "The combined screening identified an abnormal finding that "
+                "should be rechecked and monitored."
+            )
+
+        return (
+            "The available symptom, vital and patient-risk information does not "
+            "show an immediate high-risk pattern in this screening."
+        )
+
+    def _number(self, value):
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
