@@ -1,0 +1,1052 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_symptoms"
+                android:contentDescription="Symptoms" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Symptoms"
+                android:textColor="#111827"
+                android:textSize="27sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Tell us about your current symptoms"
+            android:textColor="#6B7280"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="How severe is your symptom?"
+            android:textColor="#111827"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/severityInput"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="8dp"
+            android:background="#EFF4FF"
+            android:hint="Rate from 0 to 10"
+            android:inputType="numberDecimal"
+            android:maxLength="2"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="#111827"
+            android:textColorHint="#6B7280"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="How long have you had it?"
+            android:textColor="#111827"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/durationInput"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="8dp"
+            android:background="#EFF4FF"
+            android:hint="Number of days"
+            android:inputType="number"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="#111827"
+            android:textColorHint="#6B7280"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="How often are you experiencing it?"
+            android:textColor="#111827"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/frequencyGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+            <RadioButton
+                android:id="@+id/frequencyRarely"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_symptom_card"
+                android:buttonTint="#006B6F"
+                android:paddingStart="16dp"
+                android:text="Rarely"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/frequencyOccasionally"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_symptom_card"
+                android:buttonTint="#006B6F"
+                android:paddingStart="16dp"
+                android:text="Occasionally"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/frequencyFrequently"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_symptom_card"
+                android:buttonTint="#006B6F"
+                android:paddingStart="16dp"
+                android:text="Frequently"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/frequencyConstantly"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_symptom_card"
+                android:buttonTint="#006B6F"
+                android:paddingStart="16dp"
+                android:text="Almost constantly"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+        </RadioGroup>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="How is the symptom changing?"
+            android:textColor="#111827"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/progressionGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="#EFF4FF">
+
+            <RadioButton
+                android:id="@+id/progressionBetter"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Getting better"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/progressionSame"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Staying the same"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/progressionWorse"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Getting worse"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="What type of concern are you describing?"
+            android:textColor="#111827"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/complaintTypeGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="#EFF4FF">
+
+            <RadioButton
+                android:id="@+id/complaintGeneral"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="General symptom"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/complaintSkin"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Skin concern"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/complaintOral"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Oral / Dental concern"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/complaintWound"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Wound concern"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/siteQuestion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Where are you experiencing the symptom?"
+            android:textColor="#111827"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/generalSiteGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="#EFF4FF"
+            android:visibility="gone">
+
+            <RadioButton
+                android:id="@+id/generalHead"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Head"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/generalChest"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Chest"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/generalAbdomen"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Abdomen"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/generalBack"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Back"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/generalArms"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Arms"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/generalLegs"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Legs"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/generalOther"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Other"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+        </RadioGroup>
+
+        <RadioGroup
+            android:id="@+id/skinSiteGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="#EFF4FF"
+            android:visibility="gone">
+
+            <RadioButton
+                android:id="@+id/skinFace"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Face"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/skinScalp"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Scalp"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/skinNeck"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Neck"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/skinChest"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Chest"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/skinBack"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Back"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/skinArms"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Arms"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/skinHands"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Hands"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/skinLegs"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Legs"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/skinFeet"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Feet"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/skinOther"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Other"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+        </RadioGroup>
+
+        <RadioGroup
+            android:id="@+id/oralSiteGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="#EFF4FF"
+            android:visibility="gone">
+
+            <RadioButton
+                android:id="@+id/oralTeeth"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Teeth"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/oralGums"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Gums"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/oralTongue"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Tongue"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/oralInnerCheek"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Inner cheek"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/oralLips"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Lips"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/oralRoof"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Roof of mouth"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/oralJaw"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Jaw"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/oralThroat"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Throat"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/oralMultiple"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Multiple areas"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/oralOther"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Other"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+        </RadioGroup>
+
+        <RadioGroup
+            android:id="@+id/woundSiteGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="#EFF4FF"
+            android:visibility="gone">
+
+            <RadioButton
+                android:id="@+id/woundHead"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Head"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/woundArm"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Arm"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/woundHand"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Hand"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/woundChest"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Chest"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/woundAbdomen"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Abdomen"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/woundBack"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Back"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/woundLeg"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Leg"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/woundFoot"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Foot"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/woundOther"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Other"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+        </RadioGroup>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="What does the symptom feel like?"
+            android:textColor="#111827"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/characterGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="#EFF4FF">
+
+            <RadioButton
+                android:id="@+id/characterSharp"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Sharp"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/characterDull"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Dull"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/characterBurning"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Burning"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/characterThrobbing"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Throbbing"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/characterCramping"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Cramping"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/characterPressure"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Pressure"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Does anything make it worse or bring it on?"
+            android:textColor="#111827"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Select all that apply"
+            android:textColor="#6B7280"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:id="@+id/triggerContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/triggerMovement"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_symptom_card"
+                android:buttonTint="#006B6F"
+                android:paddingStart="16dp"
+                android:text="Movement"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/triggerFood"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_symptom_card"
+                android:buttonTint="#006B6F"
+                android:paddingStart="16dp"
+                android:text="Food"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/triggerExercise"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_symptom_card"
+                android:buttonTint="#006B6F"
+                android:paddingStart="16dp"
+                android:text="Exercise"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/triggerStress"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_symptom_card"
+                android:buttonTint="#006B6F"
+                android:paddingStart="16dp"
+                android:text="Stress"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/triggerLight"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_symptom_card"
+                android:buttonTint="#006B6F"
+                android:paddingStart="16dp"
+                android:text="Light"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/triggerNone"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_symptom_card"
+                android:buttonTint="#006B6F"
+                android:paddingStart="16dp"
+                android:text="Nothing specific"
+                android:textColor="#111827"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Associated symptoms"
+            android:textColor="#111827"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/associatedSymptomsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            >
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="#EFF4FF"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp"
+                >
+
+                <CheckBox
+                    android:id="@+id/associatedNausea"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:buttonTint="#006B6F"
+                    android:paddingStart="12dp"
+                    android:text="Nausea"
+                    android:textColor="#111827"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="#EFF4FF"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp">
+
+                <CheckBox
+                    android:id="@+id/associatedFatigue"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:buttonTint="#006B6F"
+                    android:paddingStart="12dp"
+                    android:text="Fatigue"
+                    android:textColor="#111827"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="#EFF4FF"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp">
+
+                <CheckBox
+                    android:id="@+id/associatedDizziness"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:buttonTint="#006B6F"
+                    android:paddingStart="12dp"
+                    android:text="Dizziness"
+                    android:textColor="#111827"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="#EFF4FF"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp">
+
+                <CheckBox
+                    android:id="@+id/associatedLightSensitivity"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:buttonTint="#006B6F"
+                    android:paddingStart="12dp"
+                    android:text="Light sensitivity"
+                    android:textColor="#111827"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="#EFF4FF"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp">
+
+                <CheckBox
+                    android:id="@+id/associatedHeadache"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:buttonTint="#006B6F"
+                    android:paddingStart="12dp"
+                    android:text="Headache"
+                    android:textColor="#111827"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Symptoms before it"
+            android:textColor="#111827"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/preSymptomsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="#EFF4FF"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp">
+
+                <CheckBox
+                    android:id="@+id/preFatigue"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:buttonTint="#006B6F"
+                    android:paddingStart="12dp"
+                    android:text="Fatigue"
+                    android:textColor="#111827"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="#EFF4FF"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp">
+
+                <CheckBox
+                    android:id="@+id/preDizziness"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:buttonTint="#006B6F"
+                    android:paddingStart="12dp"
+                    android:text="Dizziness"
+                    android:textColor="#111827"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="#EFF4FF"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp">
+
+                <CheckBox
+                    android:id="@+id/preNausea"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:buttonTint="#006B6F"
+                    android:paddingStart="12dp"
+                    android:text="Nausea"
+                    android:textColor="#111827"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Symptoms after it"
+            android:textColor="#111827"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/postSymptomsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="#EFF4FF"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp">
+
+                <CheckBox
+                    android:id="@+id/postFatigue"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:buttonTint="#006B6F"
+                    android:paddingStart="12dp"
+                    android:text="Fatigue"
+                    android:textColor="#111827"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="#EFF4FF"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp">
+
+                <CheckBox
+                    android:id="@+id/postDizziness"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:buttonTint="#006B6F"
+                    android:paddingStart="12dp"
+                    android:text="Dizziness"
+                    android:textColor="#111827"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="#EFF4FF"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp">
+
+                <CheckBox
+                    android:id="@+id/postNausea"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:buttonTint="#006B6F"
+                    android:paddingStart="12dp"
+                    android:text="Nausea"
+                    android:textColor="#111827"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveContinueButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:text="Save and Continue"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:backgroundTint="#006B6F"
+            app:cornerRadius="25dp" />
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>
