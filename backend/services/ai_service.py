@@ -1,11 +1,17 @@
 
+import gc
+import threading
+
+import cv2
+import numpy as np
+
 from backend.services.interpretation_service import InterpretationService
 
 
 class AIService:
-
     def __init__(self):
         self.device = "cpu"
+
         self._skin_model = None
         self._oral_model = None
         self._wound_processor = None
@@ -13,6 +19,9 @@ class AIService:
         self._symptom_model = None
         self._patient_model = None
         self._fusion_model = None
+
+        self._inference_lock = threading.Lock()
+
         self.interpretation_service = InterpretationService()
 
     def _get_skin_model(self):
@@ -48,12 +57,14 @@ class AIService:
 
             model_name = "Hemgg/wound-image-classification"
 
-            self._wound_processor = AutoImageProcessor.from_pretrained(
-                model_name
+            self._wound_processor = (
+                AutoImageProcessor.from_pretrained(model_name)
             )
 
-            self._wound_model = AutoModelForImageClassification.from_pretrained(
-                model_name
+            self._wound_model = (
+                AutoModelForImageClassification.from_pretrained(
+                    model_name
+                )
             )
             self._wound_model.eval()
 
@@ -83,103 +94,197 @@ class AIService:
 
         return self._fusion_model
 
+    def _release_model(self, model_type):
+        if model_type == "skin":
+            self._skin_model = None
+
+        elif model_type == "oral":
+            self._oral_model = None
+
+        elif model_type == "wound":
+            self._wound_model = None
+            self._wound_processor = None
+
+        elif model_type == "symptom":
+            self._symptom_model = None
+
+        elif model_type == "patient":
+            self._patient_model = None
+
+        gc.collect()
+
+    def _release_all_models(self):
+        self._skin_model = None
+        self._oral_model = None
+        self._wound_processor = None
+        self._wound_model = None
+        self._symptom_model = None
+        self._patient_model = None
+
+        gc.collect()
+
+
     def _analyze_image(self, image, image_type):
         import torch
+        from PIL import Image
 
         from ai.common.preprocessing import (
             preprocess_image,
             get_inference_transform
         )
 
-        tensor = preprocess_image(
-            image,
-            get_inference_transform()
-        )
-
-        with torch.no_grad():
-
+        try:
             if image_type == "skin":
-                prediction = self._get_skin_model().predict(tensor)
+                tensor = preprocess_image(
+                    image,
+                    get_inference_transform()
+                )
+
+                model = self._get_skin_model()
+
+                with torch.inference_mode():
+                    prediction = model.predict(tensor)
 
                 return {
                     "type": "skin",
                     "prediction": prediction
                 }
 
-            if image_type == "oral":
-                prediction = self._get_oral_model().predict(tensor)
+            elif image_type == "oral":
+                tensor = preprocess_image(
+                    image,
+                    get_inference_transform()
+                )
+
+                model = self._get_oral_model()
+
+                with torch.inference_mode():
+                    prediction = model.predict(tensor)
 
                 return {
                     "type": "oral",
                     "prediction": prediction
                 }
 
-            if image_type == "wound":
+            elif image_type == "wound":
                 model = self._get_wound_model()
+                processor = self._wound_processor
 
-                inputs = self._wound_processor(
-                    images=image,
+                rgb_image = cv2.cvtColor(
+                    image,
+                    cv2.COLOR_BGR2RGB
+                )
+                pil_image = Image.fromarray(rgb_image)
+
+                inputs = processor(
+                    images=pil_image,
                     return_tensors="pt"
                 )
 
-                outputs = model(**inputs)
-                probabilities = torch.softmax(
-                    outputs.logits,
-                    dim=1
-                )[0]
+                with torch.inference_mode():
+                    outputs = model(**inputs)
+                    probabilities = torch.softmax(
+                        outputs.logits,
+                        dim=1
+                    )[0]
 
                 index = int(
                     torch.argmax(probabilities).item()
                 )
 
-                probabilities_dict = {
-                    model.config.id2label[i]: float(
-                        probabilities[i].item()
-                    )
-                    for i in range(len(probabilities))
-                }
+                labels = model.config.id2label
 
-                return {
+                result = {
                     "type": "wound",
                     "prediction": {
                         "class_index": index,
-                        "class_name": model.config.id2label[index],
+                        "class_name": labels[index],
                         "confidence": float(
                             probabilities[index].item()
                         ),
-                        "probabilities": probabilities_dict
+                        "probabilities": {
+                            labels[i]: float(probabilities[i].item())
+                            for i in range(len(probabilities))
+                        }
                     }
                 }
 
-        raise ValueError(
-            f"Unsupported image type: {image_type}"
-        )
+                del inputs, outputs, probabilities
+                del pil_image, rgb_image
+
+                return result
+
+            else:
+                raise ValueError(
+                    f"Unsupported image type: {image_type}"
+                )
+
+        finally:
+            if image_type in {"skin", "oral", "wound"}:
+                self._release_model(image_type)
 
     def analyze(
         self,
         image=None,
         image_type=None,
         symptoms=None,
-        patient=None
+        patient=None,
+        run_symptom_model=True,
+        run_patient_model=True
     ):
-        import numpy as np
+        with self._inference_lock:
+            try:
+                return self._analyze_locked(
+                    image=image,
+                    image_type=image_type,
+                    symptoms=symptoms,
+                    patient=patient,
+                    run_symptom_model=run_symptom_model,
+                    run_patient_model=run_patient_model
+                )
+            finally:
+                self._release_all_models()
 
-        from ai.patient.features import encode_patient
-
+    def _analyze_locked(
+        self,
+        image=None,
+        image_type=None,
+        symptoms=None,
+        patient=None,
+        run_symptom_model=True,
+        run_patient_model=True
+    ):
         symptoms = symptoms or {}
         patient = patient or {}
 
-        symptom_text = self._build_symptom_text(symptoms)
+        symptom_result = {}
+        patient_result = {}
 
-        symptom_result = self._get_symptom_model().predict_text(
-            symptom_text
-        )
+        if run_symptom_model:
+            try:
+                symptom_model = self._get_symptom_model()
 
-        patient_features = encode_patient(patient)
+                symptom_result = symptom_model.predict_text(
+                    self._build_symptom_text(symptoms)
+                )
+            finally:
+                self._release_model("symptom")
 
-        patient_result = self._get_patient_model().predict(
-            np.asarray(patient_features).reshape(1, -1)
-        )
+        if run_patient_model:
+            try:
+                from ai.patient.features import encode_patient
+
+                patient_features = encode_patient(patient)
+
+                patient_model = self._get_patient_model()
+
+                patient_result = patient_model.predict(
+                    np.asarray(
+                        patient_features
+                    ).reshape(1, -1)
+                )
+            finally:
+                self._release_model("patient")
 
         image_result = None
 
@@ -199,22 +304,21 @@ class AIService:
         confidences = []
 
         if image_result:
-            confidences.append(
-                float(
-                    image_result["prediction"].get(
-                        "confidence",
-                        0.0
-                    )
-                )
+            confidence = (
+                image_result["prediction"].get("confidence")
             )
+            if confidence is not None:
+                confidences.append(float(confidence))
 
-        confidences.append(
-            float(symptom_result.get("confidence", 0.0))
-        )
+        if symptom_result:
+            confidence = symptom_result.get("confidence")
+            if confidence is not None:
+                confidences.append(float(confidence))
 
-        confidences.append(
-            float(patient_result.get("confidence", 0.0))
-        )
+        if patient_result:
+            confidence = patient_result.get("confidence")
+            if confidence is not None:
+                confidences.append(float(confidence))
 
         overall_confidence = (
             sum(confidences) / len(confidences)
@@ -302,7 +406,8 @@ class AIService:
             if value is not None and str(value).strip():
                 parts.append(f"{key}: {value}")
 
-        if not parts:
-            return "No symptoms reported."
-
-        return ". ".join(parts)
+        return (
+            ". ".join(parts)
+            if parts
+            else "No symptoms reported."
+        )
