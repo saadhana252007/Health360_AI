@@ -14,20 +14,38 @@ router = APIRouter(
     tags=["Checkups"]
 )
 
-ai_service = AIService()
-supabase_service = SupabaseService()
+ai_service = None
+supabase_service = None
+
+
+def get_ai_service():
+    global ai_service
+
+    if ai_service is None:
+        ai_service = AIService()
+
+    return ai_service
+
+
+def get_supabase_service():
+    global supabase_service
+
+    if supabase_service is None:
+        supabase_service = SupabaseService()
+
+    return supabase_service
 
 
 @router.post("/analyze", response_model=CheckupResponse)
 def analyze_checkup(request: CheckupRequest):
-    result = ai_service.analyze(
+    result = get_ai_service().analyze(
         symptoms=request.symptoms,
         patient=request.patient
     )
 
     user_id = os.getenv("SUPABASE_TEST_USER_ID")
 
-    supabase_service.save_checkup(
+    get_supabase_service().save_checkup(
         user_id=user_id,
         symptoms=request.symptoms,
         patient=request.patient,
