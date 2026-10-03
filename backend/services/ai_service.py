@@ -1,22 +1,11 @@
 
-import torch
-
-from transformers import AutoImageProcessor, AutoModelForImageClassification
-
-from ai.common.preprocessing import preprocess_image, get_inference_transform
-from ai.vision.skin.model import SkinModel
-from ai.vision.oral.model import OralModel
-from ai.symptoms.model import SymptomModel
-from ai.patient.features import encode_patient
-from ai.patient.model import PatientRiskModel
-from ai.fusion.model import MultimodalFusion
 from backend.services.interpretation_service import InterpretationService
 
 
 class AIService:
 
     def __init__(self):
-        self.device = torch.device("cpu")
+        self.device = "cpu"
         self._skin_model = None
         self._oral_model = None
         self._wound_processor = None
@@ -28,61 +17,84 @@ class AIService:
 
     def _get_skin_model(self):
         if self._skin_model is None:
+            from ai.vision.skin.model import SkinModel
+
             self._skin_model = SkinModel(
                 num_classes=5,
                 pretrained=False
-            ).to(self.device)
+            )
             self._skin_model.eval()
 
         return self._skin_model
 
     def _get_oral_model(self):
         if self._oral_model is None:
+            from ai.vision.oral.model import OralModel
+
             self._oral_model = OralModel(
                 num_classes=6,
                 pretrained=False
-            ).to(self.device)
+            )
             self._oral_model.eval()
 
         return self._oral_model
 
     def _get_wound_model(self):
         if self._wound_model is None:
+            from transformers import (
+                AutoImageProcessor,
+                AutoModelForImageClassification
+            )
+
+            model_name = "Hemgg/wound-image-classification"
+
             self._wound_processor = AutoImageProcessor.from_pretrained(
-                "Hemgg/wound-image-classification"
+                model_name
             )
 
             self._wound_model = AutoModelForImageClassification.from_pretrained(
-                "Hemgg/wound-image-classification"
-            ).to(self.device)
-
+                model_name
+            )
             self._wound_model.eval()
 
         return self._wound_model
 
     def _get_symptom_model(self):
         if self._symptom_model is None:
+            from ai.symptoms.model import SymptomModel
+
             self._symptom_model = SymptomModel()
 
         return self._symptom_model
 
     def _get_patient_model(self):
         if self._patient_model is None:
+            from ai.patient.model import PatientRiskModel
+
             self._patient_model = PatientRiskModel()
 
         return self._patient_model
 
     def _get_fusion_model(self):
         if self._fusion_model is None:
+            from ai.fusion.model import MultimodalFusion
+
             self._fusion_model = MultimodalFusion()
 
         return self._fusion_model
 
     def _analyze_image(self, image, image_type):
+        import torch
+
+        from ai.common.preprocessing import (
+            preprocess_image,
+            get_inference_transform
+        )
+
         tensor = preprocess_image(
             image,
             get_inference_transform()
-        ).to(self.device)
+        )
 
         with torch.no_grad():
 
@@ -110,13 +122,7 @@ class AIService:
                     return_tensors="pt"
                 )
 
-                inputs = {
-                    key: value.to(self.device)
-                    for key, value in inputs.items()
-                }
-
                 outputs = model(**inputs)
-
                 probabilities = torch.softmax(
                     outputs.logits,
                     dim=1
@@ -156,6 +162,10 @@ class AIService:
         symptoms=None,
         patient=None
     ):
+        import numpy as np
+
+        from ai.patient.features import encode_patient
+
         symptoms = symptoms or {}
         patient = patient or {}
 
@@ -168,7 +178,7 @@ class AIService:
         patient_features = encode_patient(patient)
 
         patient_result = self._get_patient_model().predict(
-            patient_features.reshape(1, -1)
+            np.asarray(patient_features).reshape(1, -1)
         )
 
         image_result = None
