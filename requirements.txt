@@ -27,3 +27,11 @@ onnxruntime
 
 jupyter
 ipykernel
+
+
+torch
+torchvision
+transformers
+huggingface_hub
+supabase
+joblib
