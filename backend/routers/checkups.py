@@ -102,7 +102,7 @@ async def analyze_checkup_with_image(
             detail="Invalid image file"
         )
 
-    result = ai_service.analyze(
+    result = get_ai_service().analyze(
         symptoms=symptoms_data,
         patient=patient_data,
         image=image_data,
@@ -117,7 +117,7 @@ async def analyze_checkup_with_image(
 
     prediction = result["image_result"]["prediction"]
 
-    supabase_service.save_checkup(
+    get_supabase_service().save_checkup(
         user_id=user_id,
         symptoms=symptoms_data,
         patient=patient_data,
