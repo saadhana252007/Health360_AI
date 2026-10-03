@@ -1,3 +1,4 @@
+
 from fastapi import APIRouter, HTTPException
 
 from backend.schemas.assistant import AssistantRequest, AssistantResponse
@@ -9,14 +10,32 @@ router = APIRouter(
     tags=["Assistant"]
 )
 
-assistant_service = AssistantService()
-supabase_service = SupabaseService()
+assistant_service = None
+supabase_service = None
+
+
+def get_assistant_service():
+    global assistant_service
+
+    if assistant_service is None:
+        assistant_service = AssistantService()
+
+    return assistant_service
+
+
+def get_supabase_service():
+    global supabase_service
+
+    if supabase_service is None:
+        supabase_service = SupabaseService()
+
+    return supabase_service
 
 
 @router.post("/chat", response_model=AssistantResponse)
 def chat(request: AssistantRequest):
     try:
-        checkup = supabase_service.get_checkup_context(
+        checkup = get_supabase_service().get_checkup_context(
             user_id=request.user_id,
             checkup_id=request.checkup_id
         )
@@ -27,7 +46,7 @@ def chat(request: AssistantRequest):
                 detail="No checkup result found"
             )
 
-        response = assistant_service.chat(
+        response = get_assistant_service().chat(
             message=request.message,
             checkup_context=checkup
         )
@@ -41,8 +60,8 @@ def chat(request: AssistantRequest):
     except HTTPException:
         raise
 
-    except Exception as error:
+    except Exception:
         raise HTTPException(
             status_code=500,
-            detail=str(error)
+            detail="Assistant request failed"
         )
