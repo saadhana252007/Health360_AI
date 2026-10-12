@@ -41,6 +41,16 @@ android {
             "SUPABASE_PUBLISHABLE_KEY",
             "\"${localProperties.getProperty("SUPABASE_PUBLISHABLE_KEY", "")}\""
         )
+
+        // Backend address. Set API_BASE_URL in local.properties, for example
+        // API_BASE_URL=http://192.168.1.10:8000/ while testing on your Wi-Fi,
+        // or https://your-host/ for a release build. The default only works
+        // from the Android emulator.
+        buildConfigField(
+            "String",
+            "API_BASE_URL",
+            "\"${localProperties.getProperty("API_BASE_URL", "http://10.0.2.2:8000/")}\""
+        )
     }
 
     buildTypes {

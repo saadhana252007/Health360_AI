@@ -1,10 +1,11 @@
 import json
-import os
 
 import cv2
 import numpy as np
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi.concurrency import run_in_threadpool
 
+from backend.auth import get_current_user_id
 from backend.schemas.checkup import CheckupRequest, CheckupResponse
 from backend.services.ai_service import AIService
 from backend.services.supabase_service import SupabaseService
@@ -17,15 +18,18 @@ router = APIRouter(
 ai_service = AIService()
 supabase_service = SupabaseService()
 
+MAX_IMAGE_BYTES = 10 * 1024 * 1024
+
 
 @router.post("/analyze", response_model=CheckupResponse)
-def analyze_checkup(request: CheckupRequest):
+def analyze_checkup(
+    request: CheckupRequest,
+    user_id: str = Depends(get_current_user_id)
+):
     result = ai_service.analyze(
         symptoms=request.symptoms,
         patient=request.patient
     )
-
-    user_id = os.getenv("SUPABASE_TEST_USER_ID")
 
     supabase_service.save_checkup(
         user_id=user_id,
@@ -52,11 +56,11 @@ def analyze_checkup(request: CheckupRequest):
 
 @router.post("/analyze-image", response_model=CheckupResponse)
 async def analyze_checkup_with_image(
-    user_id: str = Form(...),
     symptoms: str = Form(...),
     patient: str = Form(...),
     image_type: str = Form(...),
-    image: UploadFile = File(...)
+    image: UploadFile = File(...),
+    user_id: str = Depends(get_current_user_id)
 ):
     if image_type not in {"skin", "oral", "wound"}:
         raise HTTPException(
@@ -73,7 +77,13 @@ async def analyze_checkup_with_image(
             detail="symptoms and patient must be valid JSON strings"
         )
 
-    image_bytes = await image.read()
+    image_bytes = await image.read(MAX_IMAGE_BYTES + 1)
+
+    if len(image_bytes) > MAX_IMAGE_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail="Image is too large (maximum 10 MB)"
+        )
 
     image_array = np.frombuffer(image_bytes, dtype=np.uint8)
     image_data = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
@@ -84,7 +94,10 @@ async def analyze_checkup_with_image(
             detail="Invalid image file"
         )
 
-    result = ai_service.analyze(
+    # Model inference and the database write are blocking calls, so they run
+    # in a worker thread to keep the server responsive for other requests.
+    result = await run_in_threadpool(
+        ai_service.analyze,
         symptoms=symptoms_data,
         patient=patient_data,
         image=image_data,
@@ -99,7 +112,8 @@ async def analyze_checkup_with_image(
 
     prediction = result["image_result"]["prediction"]
 
-    supabase_service.save_checkup(
+    await run_in_threadpool(
+        supabase_service.save_checkup,
         user_id=user_id,
         symptoms=symptoms_data,
         patient=patient_data,

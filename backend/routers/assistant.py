@@ -1,9 +1,13 @@
+import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from backend.auth import get_current_user_id
 from backend.schemas.assistant import AssistantRequest, AssistantResponse
 from backend.services.assistant_service import AssistantService
 from backend.services.supabase_service import SupabaseService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/api/v1/assistant",
@@ -33,10 +37,13 @@ def get_supabase_service():
 
 
 @router.post("/chat", response_model=AssistantResponse)
-def chat(request: AssistantRequest):
+def chat(
+    request: AssistantRequest,
+    user_id: str = Depends(get_current_user_id)
+):
     try:
         checkup = get_supabase_service().get_checkup_context(
-            user_id=request.user_id,
+            user_id=user_id,
             checkup_id=request.checkup_id
         )
 
@@ -61,6 +68,8 @@ def chat(request: AssistantRequest):
         raise
 
     except Exception:
+        logger.exception("Assistant request failed")
+
         raise HTTPException(
             status_code=500,
             detail="Assistant request failed"

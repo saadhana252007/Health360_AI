@@ -2,7 +2,9 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 class CheckupRequest(BaseModel):
-    user_id: str
+    # Ignored by the server: the user is taken from the login token.
+    # Kept optional so older app versions that still send it keep working.
+    user_id: str | None = None
     symptoms: dict[str, Any] = Field(default_factory=dict)
     patient: dict[str, Any] = Field(default_factory=dict)
 
