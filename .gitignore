@@ -17,6 +17,6 @@ android/Health360AI/.idea/
 android/Health360AI/**/build/
 android/Health360AI/.gradle/
 android/Health360AI/local.properties
-data/
+/data/
 images/
 models/
